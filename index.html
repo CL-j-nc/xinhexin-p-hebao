@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>中国人寿财险空中投保服务</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'jh-green': '#0b7a4a',
+              'jh-header': '#00c37b',
+              'jh-light': '#f7f8fa',
+              'jh-text': '#1f2d2b',
+              'jh-blue': '#4a90e2',
+            },
+            animation: { 'spin-slow': 'spin 3s linear infinite' }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn-base {
+          @apply rounded-xl font-medium transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-2;
+        }
+        .btn-primary {
+          @apply btn-base bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800 active:shadow-inner active:translate-y-[1px] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:opacity-70 disabled:shadow-none;
+        }
+        .btn-secondary {
+          @apply btn-base border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100 active:border-slate-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed disabled:opacity-70;
+        }
+        .btn-loading {
+          @apply btn-primary relative cursor-wait;
+        }
+        .btn-loading::after {
+          content: '';
+          @apply absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+        }
+        .btn-disabled {
+          @apply cursor-not-allowed pointer-events-none opacity-70;
+        }
+      }
+      @layer utilities {
+        .input-base {
+          @apply w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all duration-150 ease-out;
+        }
+        .input-focus {
+          @apply border-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)];
+        }
+        .input-error {
+          @apply border-rose-400 shadow-[0_0_0_3px_rgba(244,63,94,0.08)];
+        }
+        .input-disabled {
+          @apply bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed;
+        }
+        .error-text {
+          @apply mt-1.5 text-xs text-rose-600 font-medium;
+        }
+      }
+    </style>
+</head>
+<body class="bg-jh-light text-jh-text">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
