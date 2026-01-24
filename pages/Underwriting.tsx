@@ -7,21 +7,43 @@ interface CoveragePremium {
   premium: number;
 }
 
+interface ApplicationItem {
+  applicationNo: string;
+  status: string;
+  applyAt?: string;
+  underwritingAt?: string;
+  policyNo?: string;
+}
+
 const Underwriting: React.FC = () => {
-  const [applicationNo, setApplicationNo] = useState("");
+  const [applicationNo, setApplicationNo] = useState<string>("");
+  const [applications, setApplications] = useState<ApplicationItem[]>([]);
+  const [currentApp, setCurrentApp] = useState<ApplicationItem | null>(null);
+
   const [coverages, setCoverages] = useState<CoveragePremium[]>([]);
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [vat, setVat] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
+
+  const [loading, setLoading] = useState<boolean>(false);
   const [statusMsg, setStatusMsg] = useState<string>("");
-  const [applications, setApplications] = useState<any[]>([]);
-  const [currentApp, setCurrentApp] = useState<any | null>(null);
+
+  /**
+   * 加载投保申请列表
+   */
   useEffect(() => {
     fetch(`${API_BASE}/api/application/search?keyword=`)
       .then(res => res.json())
-      .then(setApplications);
+      .then((list: ApplicationItem[]) => {
+        setApplications(list);
+      })
+      .catch(() => {
+        setApplications([]);
+      });
   }, []);
 
+  /**
+   * 更新单个险种保费
+   */
   const updatePremium = (type: string, premium: number) => {
     setCoverages(prev => {
       const next = [...prev];
@@ -35,18 +57,28 @@ const Underwriting: React.FC = () => {
     });
   };
 
+  /**
+   * 开始核保
+   */
   const handleStartUnderwriting = async () => {
+    if (!applicationNo) return;
     setLoading(true);
+
     await fetch(`${API_BASE}/api/underwriting/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ applicationNo })
     });
+
     setStatusMsg("已进入核保中状态");
     setLoading(false);
   };
 
+  /**
+   * 核保通过 / 出码
+   */
   const handleApprove = async () => {
+    if (!applicationNo) return;
     setLoading(true);
 
     const premiumSummary = {
@@ -65,20 +97,28 @@ const Underwriting: React.FC = () => {
       })
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { paymentCode: string };
     setStatusMsg(`核保通过，支付码：${data.paymentCode}`);
+
     setLoading(false);
   };
 
+  /**
+   * 确认收付 / 出单
+   */
   const handleIssue = async () => {
+    if (!applicationNo) return;
     setLoading(true);
+
     const res = await fetch(`${API_BASE}/api/policy/issue`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ applicationNo })
     });
-    const data = await res.json();
+
+    const data = (await res.json()) as { policyNo: string };
     setStatusMsg(`成功承保，保单号：${data.policyNo}`);
+
     setLoading(false);
   };
 
@@ -86,13 +126,14 @@ const Underwriting: React.FC = () => {
     <div className="p-6 space-y-6 max-w-xl mx-auto">
       <h1 className="text-xl font-bold">核保处理（补齐信息素）</h1>
 
+      {/* 选择投保申请 */}
       <select
         value={applicationNo}
         onChange={e => {
           const no = e.target.value;
           setApplicationNo(no);
-          const found = applications.find(a => a.applicationNo === no);
-          setCurrentApp(found || null);
+          const found = applications.find(a => a.applicationNo === no) || null;
+          setCurrentApp(found);
         }}
         className="border px-3 py-2 rounded w-full"
       >
@@ -103,16 +144,19 @@ const Underwriting: React.FC = () => {
           </option>
         ))}
       </select>
+
+      {/* 只读信息面板 */}
       {currentApp && (
         <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm space-y-1">
           <div><b>投保单号：</b>{currentApp.applicationNo}</div>
           <div><b>状态：</b>{currentApp.status}</div>
-          <div><b>提交时间：</b>{currentApp.applyAt}</div>
-          <div><b>核保时间：</b>{currentApp.underwritingAt || '-'}</div>
-          <div><b>保单号：</b>{currentApp.policyNo || '-'}</div>
+          <div><b>提交时间：</b>{currentApp.applyAt || "-"}</div>
+          <div><b>核保时间：</b>{currentApp.underwritingAt || "-"}</div>
+          <div><b>保单号：</b>{currentApp.policyNo || "-"}</div>
         </div>
       )}
 
+      {/* 保费填写 */}
       <div className="space-y-3">
         <h2 className="font-semibold text-sm">各险种保费填写</h2>
         {["third_party", "damage", "driver", "passenger"].map(type => (
@@ -128,6 +172,7 @@ const Underwriting: React.FC = () => {
         ))}
       </div>
 
+      {/* 保费汇总 */}
       <div className="space-y-2">
         <input
           type="number"
@@ -145,6 +190,7 @@ const Underwriting: React.FC = () => {
         />
       </div>
 
+      {/* 操作按钮 */}
       <div className="space-y-3">
         <button
           onClick={handleStartUnderwriting}
@@ -171,14 +217,12 @@ const Underwriting: React.FC = () => {
         </button>
       </div>
 
-      {
-        statusMsg && (
-          <div className="text-sm text-emerald-700 font-medium">
-            {statusMsg}
-          </div>
-        )
-      }
-    </div >
+      {statusMsg && (
+        <div className="text-sm text-emerald-700 font-medium">
+          {statusMsg}
+        </div>
+      )}
+    </div>
   );
 };
 
