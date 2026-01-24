@@ -55,7 +55,6 @@ const Underwriting: React.FC = () => {
       }
       return next;
     });
-  };
 
   /**
    * 开始核保
@@ -72,7 +71,6 @@ const Underwriting: React.FC = () => {
 
     setStatusMsg("已进入核保中状态");
     setLoading(false);
-  };
 
   /**
    * 核保通过 / 出码
@@ -102,9 +100,7 @@ const Underwriting: React.FC = () => {
     const verifyData = await verifyRes.json();
     setStatusMsg(`核保通过，验证码：${verifyData.code}`);
     setLoading(false);
-  };
 
-  };
 
   /**
    * 确认收付 / 出单
@@ -123,7 +119,6 @@ const Underwriting: React.FC = () => {
     setStatusMsg(`成功承保，保单号：${data.policyNo}`);
 
     setLoading(false);
-  };
 
   return (
     <div className="p-6 space-y-6 max-w-xl mx-auto">
