@@ -87,20 +87,23 @@ const Underwriting: React.FC = () => {
       premiumExclTax: Number((totalPremium - vat).toFixed(2))
     };
 
-    const res = await fetch(`${API_BASE}/api/underwriting/approve`, {
+    await fetch(`${API_BASE}/api/underwriting/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        applicationNo,
-        coverages,
-        premiumSummary
-      })
+      body: JSON.stringify({ applicationNo, coverages, premiumSummary })
     });
 
-    const data = (await res.json()) as { paymentCode: string };
-    setStatusMsg(`核保通过，支付码：${data.paymentCode}`);
+    const verifyRes = await fetch(`${API_BASE}/api/verify/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ applicationNo })
+    });
 
+    const verifyData = await verifyRes.json();
+    setStatusMsg(`核保通过，验证码：${verifyData.code}`);
     setLoading(false);
+  };
+
   };
 
   /**
