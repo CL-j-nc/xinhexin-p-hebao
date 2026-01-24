@@ -15,6 +15,7 @@ const Underwriting: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string>("");
   const [applications, setApplications] = useState<any[]>([]);
+  const [currentApp, setCurrentApp] = useState<any | null>(null);
   useEffect(() => {
     fetch(`${API_BASE}/api/application/search?keyword=`)
       .then(res => res.json())
@@ -87,7 +88,12 @@ const Underwriting: React.FC = () => {
 
       <select
         value={applicationNo}
-        onChange={e => setApplicationNo(e.target.value)}
+        onChange={e => {
+          const no = e.target.value;
+          setApplicationNo(no);
+          const found = applications.find(a => a.applicationNo === no);
+          setCurrentApp(found || null);
+        }}
         className="border px-3 py-2 rounded w-full"
       >
         <option value="">选择投保申请</option>
@@ -97,6 +103,15 @@ const Underwriting: React.FC = () => {
           </option>
         ))}
       </select>
+      {currentApp && (
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm space-y-1">
+          <div><b>投保单号：</b>{currentApp.applicationNo}</div>
+          <div><b>状态：</b>{currentApp.status}</div>
+          <div><b>提交时间：</b>{currentApp.applyAt}</div>
+          <div><b>核保时间：</b>{currentApp.underwritingAt || '-'}</div>
+          <div><b>保单号：</b>{currentApp.policyNo || '-'}</div>
+        </div>
+      )}
 
       <div className="space-y-3">
         <h2 className="font-semibold text-sm">各险种保费填写</h2>
@@ -156,12 +171,14 @@ const Underwriting: React.FC = () => {
         </button>
       </div>
 
-      {statusMsg && (
-        <div className="text-sm text-emerald-700 font-medium">
-          {statusMsg}
-        </div>
-      )}
-    </div>
+      {
+        statusMsg && (
+          <div className="text-sm text-emerald-700 font-medium">
+            {statusMsg}
+          </div>
+        )
+      }
+    </div >
   );
 };
 
