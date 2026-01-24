@@ -15,6 +15,8 @@ interface ApplicationItem {
   policyNo?: string;
 }
 
+type UnderwritingCategory = 'NORMAL' | 'SPECIAL';
+
 const Underwriting: React.FC = () => {
   const [applicationNo, setApplicationNo] = useState<string>("");
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
@@ -26,6 +28,9 @@ const Underwriting: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [statusMsg, setStatusMsg] = useState<string>("");
+
+  const [underwritingCategory, setUnderwritingCategory] =
+    useState<UnderwritingCategory>('NORMAL');
 
   /**
    * 加载投保申请列表
@@ -55,6 +60,7 @@ const Underwriting: React.FC = () => {
       }
       return next;
     });
+  };
 
   /**
    * 开始核保
@@ -71,6 +77,7 @@ const Underwriting: React.FC = () => {
 
     setStatusMsg("已进入核保中状态");
     setLoading(false);
+  };
 
   /**
    * 核保通过 / 出码
@@ -88,7 +95,12 @@ const Underwriting: React.FC = () => {
     await fetch(`${API_BASE}/api/underwriting/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ applicationNo, coverages, premiumSummary })
+      body: JSON.stringify({
+        applicationNo,
+        coverages,
+        premiumSummary,
+        underwritingCategory
+      })
     });
 
     const verifyRes = await fetch(`${API_BASE}/api/verify/send`, {
@@ -100,7 +112,7 @@ const Underwriting: React.FC = () => {
     const verifyData = await verifyRes.json();
     setStatusMsg(`核保通过，验证码：${verifyData.code}`);
     setLoading(false);
-
+  };
 
   /**
    * 确认收付 / 出单
@@ -119,6 +131,7 @@ const Underwriting: React.FC = () => {
     setStatusMsg(`成功承保，保单号：${data.policyNo}`);
 
     setLoading(false);
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-xl mx-auto">
@@ -153,6 +166,34 @@ const Underwriting: React.FC = () => {
           <div><b>保单号：</b>{currentApp.policyNo || "-"}</div>
         </div>
       )}
+
+      {/* 承保车辆类别裁定 */}
+      <div className="border border-slate-200 rounded-lg p-4 space-y-2">
+        <div className="text-sm font-semibold">承保车辆类别（核保裁定）</div>
+        <div className="flex gap-4 text-sm">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              value="NORMAL"
+              checked={underwritingCategory === 'NORMAL'}
+              onChange={() => setUnderwritingCategory('NORMAL')}
+            />
+            机动车
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              value="SPECIAL"
+              checked={underwritingCategory === 'SPECIAL'}
+              onChange={() => setUnderwritingCategory('SPECIAL')}
+            />
+            特种车
+          </label>
+        </div>
+        <div className="text-xs text-slate-500">
+          核保人员根据行驶证、使用性质、车辆照片等信息裁定最终承保类别
+        </div>
+      </div>
 
       {/* 保费填写 */}
       <div className="space-y-3">
