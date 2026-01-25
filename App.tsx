@@ -1,6 +1,6 @@
 import React from 'react';
-import Underwriting from './pages/Underwriting';
+import UnderwritingPage from './pages/Underwriting.tsx';
 
 export default function App() {
-  return <Underwriting />;
+  return <UnderwritingPage />;
 }
