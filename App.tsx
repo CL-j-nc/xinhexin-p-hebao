@@ -1,6 +1,12 @@
-import React from 'react';
-import UnderwritingPage from './pages/Underwriting';
+import React from "react";
+import Underwriting from "./pages/Underwriting";
 
-export default function App() {
-  return <UnderwritingPage />;
-}
+const App: React.FC = () => {
+  return (
+    <div style={{ minHeight: "100vh" }}>
+      <Underwriting />
+    </div>
+  );
+};
+
+export default App;
