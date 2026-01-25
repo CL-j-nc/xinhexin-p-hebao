@@ -1,67 +1,88 @@
-import React, { useEffect, useState } from 'react';
-
-export interface ApplicationItem {
-  applicationNo: string;
-  status: string;
-  applyAt?: string;
-  policyNo?: string;
+export interface Env {
+  DB: D1Database;
+  POLICY_KV: KVNamespace;
 }
 
-const Underwriting: React.FC = () => {
-  const [list, setList] = useState<ApplicationItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          'https://xinhexin-api.chinalife-shiexinhexin.workers.dev/api/application/list'
-        );
-        const data = (await res.json()) as ApplicationItem[];
-        setList(data);
-      } catch (e) {
-        console.error(e);
-        setError('获取投保单列表失败');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <h1 className="text-xl font-bold text-slate-800 mb-6">核保工作台</h1>
-
-      {loading && <div className="text-slate-500">加载中…</div>}
-      {error && <div className="text-rose-600">{error}</div>}
-
-      {!loading && !error && (
-        <table className="min-w-full text-sm border border-slate-200 bg-white">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="px-3 py-2 border">投保单号</th>
-              <th className="px-3 py-2 border">状态</th>
-              <th className="px-3 py-2 border">提交时间</th>
-              <th className="px-3 py-2 border">保单号</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map(item => (
-              <tr key={item.applicationNo}>
-                <td className="px-3 py-2 border">{item.applicationNo}</td>
-                <td className="px-3 py-2 border">{item.status}</td>
-                <td className="px-3 py-2 border">{item.applyAt || '-'}</td>
-                <td className="px-3 py-2 border">{item.policyNo || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-export default Underwriting;
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      ...corsHeaders,
+    },
+  });
+}
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+    const { pathname } = url;
+
+    // ===== CORS 预检 =====
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    // ===== 1. 获取投保单列表（核保台用）=====
+    // GET /api/application/list
+    if (pathname === '/api/application/list' && request.method === 'GET') {
+      const { results } = await env.DB.prepare(`
+        SELECT
+          application_no AS applicationNo,
+          status,
+          apply_at AS applyAt,
+          policy_no AS policyNo
+        FROM applications
+        ORDER BY apply_at DESC
+      `).all();
+
+      return json(results || []);
+    }
+
+    // ===== 2. 核保通过 =====
+    // POST /api/application/:applicationNo/approve
+    if (
+      pathname.match(/^\/api\/application\/[^/]+\/approve$/) &&
+      request.method === 'POST'
+    ) {
+      const applicationNo = pathname.split('/')[3];
+
+      await env.DB.prepare(`
+        UPDATE applications
+        SET status = 'APPROVED'
+        WHERE application_no = ?
+      `).bind(applicationNo).run();
+
+      return json({ ok: true });
+    }
+
+    // ===== 3. 核保打回 =====
+    // POST /api/application/:applicationNo/reject
+    if (
+      pathname.match(/^\/api\/application\/[^/]+\/reject$/) &&
+      request.method === 'POST'
+    ) {
+      const applicationNo = pathname.split('/')[3];
+
+      await env.DB.prepare(`
+        UPDATE applications
+        SET status = 'REJECTED'
+        WHERE application_no = ?
+      `).bind(applicationNo).run();
+
+      return json({ ok: true });
+    }
+
+    // ===== 404 =====
+    return new Response('Not Found', {
+      status: 404,
+      headers: corsHeaders,
+    });
+  },
+};

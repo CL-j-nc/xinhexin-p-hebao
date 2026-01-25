@@ -1,23 +1,12 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
-import process from 'node:process'
+name = "xinhexin-api"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  // 注入环境变量，确保在 Cloudflare Pages 构建环境下能抓取到 API_KEY
-  const env = loadEnv(mode, process.cwd(), '');
-  
-  // 优先级：系统环境变量 > .env 文件变量
-  const finalApiKey = process.env.API_KEY || env.API_KEY || "";
+[[kv_namespaces]]
+binding = "POLICY_KV"
+id = "8687c597a13548f58c7236009ad56287"
+preview_id = "07a77c476f9f4fb6982e4ef19d4cf15"
 
-  return {
-    plugins: [react()],
-    build: {
-      outDir: 'dist',
-    },
-    define: {
-      // 注入 process.env 变量供前端 getApiKey() 调用
-      'process.env.API_KEY': JSON.stringify(finalApiKey)
-    }
-  }
-})
+[[d1_databases]]
+binding = "DB"
+database_name = "xinhexin-db"
