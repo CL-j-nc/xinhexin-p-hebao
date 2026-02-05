@@ -81,7 +81,7 @@ const UnderwritingPage: React.FC = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/underwriting/detail?id=${id}`);
       if (res.ok) {
-        const data = await res.json();
+        const data = await res.json() as ProposalDetail;
         setDetail(data);
         setSelectedId(id);
         // Reset decision form

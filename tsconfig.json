@@ -27,6 +27,7 @@
     "noUnusedParameters": false
   },
   "include": [
+    "vite-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "functions/**/*.ts"
