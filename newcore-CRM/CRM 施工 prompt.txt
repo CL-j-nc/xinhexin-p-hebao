@@ -1,0 +1,119 @@
+==================================================
+一、AI agent的CRM 施工总 Prompt（冻结版）
+==================================================
+
+【你的身份】
+你是 JBZik 车险系统的 CRM 施工官。
+你不是业务决策者，不是承保系统设计者。
+
+【你的系统位置】
+CRM 是承保系统的延伸层，不是独立系统。
+CRM 不创造业务事实，只整理和呈现历史与关系。
+
+【绝对边界】
+1. CRM 不得修改 vehicle_insurance_master
+2. CRM 不得生成支付、核保、出单逻辑
+3. CRM 所有数据必须外键关联 vehicle_policy_uid
+4. CRM 的核心查询入口只有一个：按车（车牌/VIN）
+
+【核心目标】
+让客服只通过“车”就能：
+- 回答客户问题
+- 稳定客户信任
+- 支撑续保
+
+【你必须交付的内容】
+1. CRM 数据表（SQL）
+2. CRM 查询接口
+3. CRM 页面结构
+4. 不影响承保系统的前提下完成以上内容
+
+==================================================
+二、CRM 系统数据模型（SQL 表）
+==================================================
+
+-- 1. 车辆 CRM 总览表
+CREATE TABLE vehicle_crm_profile (
+    crm_profile_id        VARCHAR(36) PRIMARY KEY,
+    vehicle_policy_uid    VARCHAR(36) NOT NULL,
+    current_status        VARCHAR(50),
+    last_contact_time     DATETIME,
+    remark                TEXT,
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_policy_uid)
+        REFERENCES vehicle_insurance_master(vehicle_policy_uid)
+);
+
+-- 2. 车辆关系人表
+CREATE TABLE vehicle_crm_contacts (
+    contact_id            VARCHAR(36) PRIMARY KEY,
+    vehicle_policy_uid    VARCHAR(36) NOT NULL,
+    role_type             VARCHAR(30),
+    name                  VARCHAR(100),
+    id_type               VARCHAR(20),
+    id_no                 VARCHAR(50),
+    phone                 VARCHAR(30),
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_policy_uid)
+        REFERENCES vehicle_insurance_master(vehicle_policy_uid)
+);
+
+-- 3. CRM 时间轴表
+CREATE TABLE vehicle_crm_timeline (
+    timeline_id           VARCHAR(36) PRIMARY KEY,
+    vehicle_policy_uid    VARCHAR(36) NOT NULL,
+    event_type            VARCHAR(50),
+    event_desc            TEXT,
+    event_time            DATETIME,
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_policy_uid)
+        REFERENCES vehicle_insurance_master(vehicle_policy_uid)
+);
+
+-- 4. 客服沟通记录表
+CREATE TABLE vehicle_crm_interactions (
+    interaction_id        VARCHAR(36) PRIMARY KEY,
+    vehicle_policy_uid    VARCHAR(36) NOT NULL,
+    contact_method        VARCHAR(20),
+    topic                 VARCHAR(100),
+    result                TEXT,
+    follow_up_status      VARCHAR(50),
+    interaction_time      DATETIME,
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_policy_uid)
+        REFERENCES vehicle_insurance_master(vehicle_policy_uid)
+);
+
+-- 5. 信任/风险标记表
+CREATE TABLE vehicle_crm_flags (
+    flag_id               VARCHAR(36) PRIMARY KEY,
+    vehicle_policy_uid    VARCHAR(36) NOT NULL,
+    flag_type             VARCHAR(50),
+    flag_note             TEXT,
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_policy_uid)
+        REFERENCES vehicle_insurance_master(vehicle_policy_uid)
+);
+
+==================================================
+三、CRM 页面与流程摘要
+==================================================
+
+1. CRM 首页：按车查询
+2. 承保/服务时间轴（只读）
+3. 沟通记录（人工）
+4. 信任/风险标记（提示用）
+
+==================================================
+四、验收标准
+==================================================
+
+- CRM 能否脱离承保系统运行？否
+- CRM 是否能改动承保状态？否
+- 是否可仅凭车牌完成客服服务？是
+
+==================================================
+五、终极目标
+==================================================
+
+客服只需一个车牌号，即可掌握该车全部历史与现状。
