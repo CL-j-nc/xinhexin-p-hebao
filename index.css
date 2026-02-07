@@ -2,41 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-in;
+}
+
 @layer components {
-    .btn-base {
-      @apply rounded-xl font-medium transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-2;
-    }
-    .btn-primary {
-      @apply btn-base bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800 active:shadow-inner active:translate-y-[1px] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:opacity-70 disabled:shadow-none;
-    }
-    .btn-secondary {
-      @apply btn-base border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100 active:border-slate-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed disabled:opacity-70;
-    }
-    .btn-loading {
-      @apply btn-primary relative cursor-wait;
-    }
-    .btn-loading::after {
-      content: '';
-      @apply absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
-    }
-    .btn-disabled {
-      @apply cursor-not-allowed pointer-events-none opacity-70;
-    }
+  .btn-base {
+    @apply rounded-xl font-medium transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-2;
   }
-  @layer utilities {
-    .input-base {
-      @apply w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all duration-150 ease-out;
-    }
-    .input-focus {
-      @apply border-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)];
-    }
-    .input-error {
-      @apply border-rose-400 shadow-[0_0_0_3px_rgba(244,63,94,0.08)];
-    }
-    .input-disabled {
-      @apply bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed;
-    }
-    .error-text {
-      @apply mt-1.5 text-xs text-rose-600 font-medium;
-    }
+
+  .btn-primary {
+    @apply btn-base bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800 active:shadow-inner active:translate-y-[1px] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:opacity-70 disabled:shadow-none;
   }
+
+  .btn-secondary {
+    @apply btn-base border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100 active:border-slate-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed disabled:opacity-70;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm p-6;
+  }
+
+  .input-base {
+    @apply w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all duration-150 ease-out;
+  }
+
+  .input-focus {
+    @apply border-emerald-500 shadow-[0_0_0_3px_rgba(16, 185, 129, 0.12)];
+  }
+
+  .input-error {
+    @apply border-rose-400 shadow-[0_0_0_3px_rgba(244, 63, 94, 0.08)];
+  }
+
+  .input-disabled {
+    @apply bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed;
+  }
+
+  .error-text {
+    @apply mt-1.5 text-xs text-rose-600 font-medium;
+  }
+}

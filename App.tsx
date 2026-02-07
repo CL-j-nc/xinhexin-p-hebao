@@ -1,10 +1,10 @@
-import React from "react";
-import Underwriting from "./pages/Underwriting";
+import React from 'react';
+import UnderwritingPage from './src/UnderwritingPage';
 
 const App: React.FC = () => {
   return (
-    <div style={{ minHeight: "100vh" }}>
-      <Underwriting />
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <UnderwritingPage />
     </div>
   );
 };
