@@ -48,3 +48,56 @@ body {
     @apply mt-1.5 text-xs text-rose-600 font-medium;
   }
 }
+
+/* ─── Site Footer (matches salesman SiteFooter) ─── */
+.site-footer {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg,
+      #198f62 0%,
+      #108a7b 28%,
+      #1f6fa8 55%,
+      #4d5aa6 78%,
+      #8a4b86 100%);
+  color: rgba(232, 238, 246, 0.92);
+  text-align: center;
+  padding: 18px 12px;
+}
+
+.site-footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer-records {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(232, 238, 246, 0.9);
+}
+
+.site-footer-sep {
+  width: 1px;
+  height: 14px;
+  display: inline-block;
+  background: rgba(232, 238, 246, 0.4);
+}
+
+@media (max-width: 640px) {
+  .site-footer-inner {
+    font-size: 12px;
+  }
+
+  .site-footer-records {
+    font-size: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
