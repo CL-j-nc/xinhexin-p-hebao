@@ -1,0 +1,20 @@
+name = "xinhexin-payment-worker"
+main = "src/index.ts"
+account_id = "84e49326d97c55c276189999036987f4"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
+
+
+# Enable Browser Rendering
+[browser]
+binding = "MYBROWSER"
+
+# Enable Workers AI for CAPTCHA solving
+[ai]
+binding = "AI"
+
+# KV/D1 not strictly needed unless we want to cache sessions, 
+# but let's keep it simple for now.
+
+[observability]
+enabled = true
