@@ -677,7 +677,7 @@ const UnderwritingPage: React.FC = () => {
                                                             rel="noopener noreferrer"
                                                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors"
                                                         >
-                                                            🔗 打开汇来通后台
+                                                            🔗 打开核心收银台后台
                                                         </a>
                                                         <span className="text-xs text-gray-400">账号: H15348806977 → 商户管理 → 复制收款链接粘贴到上方</span>
                                                     </div>
