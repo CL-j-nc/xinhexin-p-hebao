@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import QRCode from 'qrcode';
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -363,6 +363,7 @@ const UnderwritingDetail: React.FC = () => {
                 // Generate QR Code for display
                 if (jsonDec.qrUrl) {
                     try {
+                        const QRCode = await import('qrcode'); // Dynamic import to prevent bundle crash
                         const url = await QRCode.toDataURL(jsonDec.qrUrl);
                         setSuccessData({ qr: url, code: jsonDec.authCode || '' });
                         setSuccessModalOpen(true);
