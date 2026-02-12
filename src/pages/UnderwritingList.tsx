@@ -45,15 +45,38 @@ const UnderwritingList: React.FC = () => {
                 url = `${API_BASE}/application/history`;
             }
 
-            const res = await fetch(url);
-            const data = (await res.json()) as any;
-            let items: ProposalItem[] = Array.isArray(data) ? data : (data.results || []);
+            if (status === 'pending') {
+                const data = (await res.json()) as any;
+                items = Array.isArray(data) ? data : (data.results || []);
+            } else {
+                // History endpoint returns UnifiedRecord { id, status, timestamp, ... }
+                // We must map it to ProposalItem { proposal_id, proposal_status, ... }
+                const data = (await res.json()) as any;
+                const rawItems = Array.isArray(data) ? data : (data.results || []);
 
-            // Client-side filtering if needed (since API might return all)
+                items = rawItems.map((item: any) => ({
+                    proposal_id: item.id || item.proposal_id || item.applicationNo,
+                    proposal_status: item.status || item.proposal_status,
+                    created_at: new Date(item.timestamp || item.created_at || Date.now()).toISOString(),
+                    application_submitted_at: new Date(item.timestamp || item.created_at || Date.now()).toISOString(),
+                    plate_number: item.plate || item.plate_number,
+                    brand_model: item.brand || item.brand_model,
+                    vehicle_type: item.vehicle_type
+                }));
+            }
+
+            // Client-side filtering if needed
             if (status === 'rejected') {
-                items = items.filter(i => i.proposal_status === 'REJECTED' || i.proposal_status === 'Underwriting Rejected');
+                items = items.filter(i =>
+                    i.proposal_status === 'REJECTED' ||
+                    i.proposal_status === 'Underwriting Rejected'
+                );
             } else if (status === 'history') {
-                items = items.filter(i => i.proposal_status !== 'SUBMITTED' && i.proposal_status !== 'REJECTED');
+                items = items.filter(i =>
+                    i.proposal_status !== 'SUBMITTED' &&
+                    i.proposal_status !== 'REJECTED' &&
+                    i.proposal_status !== 'Underwriting Rejected' // Ensure we don't show rejected in history if that's the intent
+                );
             }
 
             setList(items);
