@@ -16,12 +16,14 @@ export default {
         const body: any = await request.json().catch(() => ({}));
         const { productName = "中国人寿财险机动车商业保险", amount } = body;
 
-        // Temporary hardcoded credentials to bypass EPERM on secret put
-        const USERNAME = env.huilaitong_username || "H15348806977";
-        const PASSWORD = env.huilaitong_password || "868132";
+        const USERNAME = env.huilaitong_username;
+        const PASSWORD = env.huilaitong_password;
 
         if (!USERNAME || !PASSWORD) {
-            return new Response("Missing credentials", { status: 500 });
+            return new Response(
+                JSON.stringify({ error: "Missing huilaitong credentials. Please configure secrets." }),
+                { status: 500, headers: { "Content-Type": "application/json" } }
+            );
         }
 
         let browser;
