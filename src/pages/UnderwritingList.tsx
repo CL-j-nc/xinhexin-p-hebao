@@ -24,6 +24,7 @@ const UnderwritingList: React.FC = () => {
 
     const titleMap: Record<string, string> = {
         pending: "待处理投保申请",
+        'awaiting-payment': "待支付确认",
         history: "核保历史记录",
         rejected: "被驳回/拒保申请"
     };
@@ -39,11 +40,14 @@ const UnderwritingList: React.FC = () => {
             if (status === 'pending') {
                 url = `${API_BASE}/underwriting/pending`;
             } else {
-                // For history/rejected, we might use a unified history endpoint and filter client-side
-                // or assume backend supports query params.
-                // Using /application/history as per index.ts analysis
+                // For history/rejected, use unified history endpoint and filter client-side
                 url = `${API_BASE}/application/history`;
             }
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            let items: ProposalItem[] = [];
 
             if (status === 'pending') {
                 const data = (await res.json()) as any;
@@ -65,17 +69,22 @@ const UnderwritingList: React.FC = () => {
                 }));
             }
 
-            // Client-side filtering if needed
+            // Client-side filtering based on status
             if (status === 'rejected') {
                 items = items.filter(i =>
                     i.proposal_status === 'REJECTED' ||
                     i.proposal_status === 'Underwriting Rejected'
                 );
+            } else if (status === 'awaiting-payment') {
+                items = items.filter(i =>
+                    i.proposal_status === 'UNDERWRITING_CONFIRMED' ||
+                    i.proposal_status === 'Underwriting Approved'
+                );
             } else if (status === 'history') {
                 items = items.filter(i =>
-                    i.proposal_status !== 'SUBMITTED' &&
-                    i.proposal_status !== 'REJECTED' &&
-                    i.proposal_status !== 'Underwriting Rejected' // Ensure we don't show rejected in history if that's the intent
+                    i.proposal_status === 'COMPLETED' ||
+                    i.proposal_status === 'PAID' ||
+                    i.proposal_status === 'POLICY_ISSUED'
                 );
             }
 

@@ -35,10 +35,10 @@ const Dashboard: React.FC = () => {
                         color="bg-emerald-100 text-emerald-600"
                     />
                     <MenuCard
-                        title="待核保申请"
-                        desc="查看并管理排队中的申请"
-                        icon="📋"
-                        path="/list/pending"
+                        title="待支付确认"
+                        desc="已核保通过，等待客户支付"
+                        icon="💳"
+                        path="/list/awaiting-payment"
                         color="bg-blue-100 text-blue-600"
                     />
                     <MenuCard
